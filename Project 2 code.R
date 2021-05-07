@@ -4,6 +4,7 @@ library(ggplot2)
 library(scales)
 library(stringr)
 library(plotly)
+library(janitor)
 
 #Bring in data files 
 library(readxl)
@@ -66,4 +67,39 @@ animal_products$Egg_supply <- egg_consumption$`Per Capita Egg Consumption (lbs. 
 
 #-------------------------------------Bring in and health data --------------------------------------------------------
 
-health_data <- read_excel("~/R/Project 2/diabetes_and_obesity.xlsx")
+health_data <- read_excel("~/R/Project 2/diabetes&obesity.xlsx")
+health_data <- health_data[-(1:2),]
+health_data$...2 <- NULL
+health_data$...3 <- NULL
+health_data$...5 <- NULL
+health_data$...7 <- NULL
+health_data$...9 <- NULL
+health_data$...11 <- NULL
+health_data$...13 <- NULL
+health_data$...15 <- NULL
+health_data$...17 <- NULL
+health_data$...19 <- NULL
+health_data$...21 <- NULL
+health_data$...23 <- NULL
+health_data <- na.omit(health_data)
+health_data$...4 <- as.numeric(health_data$...4)
+
+health_data <- t(health_data)
+
+health_data <- data.frame(health_data)
+
+health_data$X2 <- NULL
+
+h_data <- health_data %>% dplyr::select(X3, X9, X11)
+h_data <- h_data[-(1),]
+  
+
+Years2 <- c("1999-2000", "2001-2002", "2003-2004", "2005-2006", "2007-2008", "2009-2010", "2011-2012", "2013-2014", "2015-2016", "2017-2018")
+healthy_data <- data.frame(Year=character(10), Diabetes_rate= integer(10), Hypertension_rate = integer(10), Obesity_rate= integer(10))
+healthy_data$Year <- Years2
+healthy_data$Diabetes_rate <-h_data$X3
+healthy_data$Hypertension_rate <- h_data$X9
+healthy_data$Obesity_rate <- h_data$X11
+healthy_data$Diabetes_rate <- as.numeric(healthy_data$Diabetes_rate)
+healthy_data$Hypertension_rate <- as.numeric(healthy_data$Hypertension_rate)
+healthy_data$Obesity_rate <- as.numeric(healthy_data$Obesity_rate)
