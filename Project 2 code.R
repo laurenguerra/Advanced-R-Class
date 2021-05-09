@@ -9,8 +9,13 @@ library(janitor)
 #Bring in data files 
 library(readxl)
 consump_meat <- read_excel("~/R/Project 2/Meat_consumption.xlsx")
+
+
 consump_eggs <-read_excel("~/R/Project 2/Egg product consumption.xlsx")
+
+
 consump_dairy <- read_excel("~/R/Project 2/dairy_consumption.xlsx")
+
 
 #Clean meat consumption data
 consump_meat$...3 <- NULL
@@ -26,44 +31,44 @@ consump_meat <- consump_meat[-c(3:71),]
 consump_meat <- consump_meat[-c(113:124),]
 consump_meat <- consump_meat %>% dplyr::rename("Year"=1)
 consump_meat <- consump_meat %>% dplyr::rename("Total Supply"=3)
-consump_meat <- consump_meat %>% dplyr::rename("Per Capita Disappearance (lbs)"=5)
+consump_meat <- consump_meat %>% dplyr::rename("Per Capita Consumption (lbs. per person)"=5)
 consump_meat <- consump_meat %>% dplyr::rename("US Population (/1000 persons)"=4)
 consump_meat <- consump_meat[-c(1:2),]
 consump_meat <- consump_meat[!grepl("Q", consump_meat$...2),]
 Years <- c(1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020)
 consump_meat$`Year` <- Years
-consump_meat$`Per Capita Disappearance (lbs)` <- as.numeric(consump_meat$`Per Capita Disappearance (lbs)`)
+consump_meat$`Per Capita Consumption (lbs. per person)` <- as.numeric(consump_meat$`Per Capita Consumption (lbs. per person)`)
 consump_meat$`Total Supply` <- as.numeric(consump_meat$`Total Supply`)
 consump_meat$`US Population (/1000 persons)` <- as.numeric(consump_meat$`US Population (/1000 persons)`)
-meat_consumption <- consump_meat %>% dplyr::select(Year, 'Per Capita Disappearance (lbs)')
+meat_consumption <- consump_meat %>% dplyr::select(Year, 'Per Capita Consumption (lbs. per person)')
+meat_consumption$product <- "meat"
 
 #Clean dairy consumption data
 consump_dairy$...2 <- NULL
-consump_dairy <- consump_dairy %>% dplyr::rename("Per Capita All Dairy and Dairy Product Consumption (lbs. per person)"=19)
+consump_dairy <- consump_dairy %>% dplyr::rename("Per Capita Consumption (lbs. per person)"=19)
 consump_dairy <- consump_dairy %>% dplyr::rename("Year"=1)
-dairy_consumption <- consump_dairy %>% dplyr::select(Year,'Per Capita All Dairy and Dairy Product Consumption (lbs. per person)')
+dairy_consumption <- consump_dairy %>% dplyr::select(Year,'Per Capita Consumption (lbs. per person)')
 dairy_consumption <- dairy_consumption[-c(1:28),]
 dairy_consumption$Year <- as.numeric(dairy_consumption$Year)
-dairy_consumption$`Per Capita All Dairy and Dairy Product Consumption (lbs. per person)` <- as.numeric(dairy_consumption$`Per Capita All Dairy and Dairy Product Consumption (lbs. per person)`)
+dairy_consumption$`Per Capita Consumption (lbs. per person)` <- as.numeric(dairy_consumption$`Per Capita Consumption (lbs. per person)`)
 dairy_consumption <- dairy_consumption[-c(23:29),]
+dairy_consumption$product <- "dairy"
 
 #Clean egg consumption data
-consump_eggs <-consump_eggs %>% dplyr::rename("Per Capita Egg Consumption (lbs. per person)" =15)
+consump_eggs <-consump_eggs %>% dplyr::rename("Per Capita Consumption (lbs. per person)" =15)
 consump_eggs <- consump_eggs %>% dplyr::rename("Year"=1)
 consump_eggs <- consump_eggs[-c(1:47),]
 consump_eggs <- consump_eggs[!grepl("Q", consump_eggs$...2),]
 consump_eggs <- consump_eggs[-c(23:31),]
 consump_eggs$Year <- Years
-egg_consumption <- consump_eggs %>% dplyr::select(Year, 'Per Capita Egg Consumption (lbs. per person)')
-egg_consumption$`Per Capita Egg Consumption (lbs. per person)` <- as.numeric(egg_consumption$`Per Capita Egg Consumption (lbs. per person)`)
+egg_consumption <- consump_eggs %>% dplyr::select(Year, 'Per Capita Consumption (lbs. per person)')
+egg_consumption$`Per Capita Consumption (lbs. per person)` <- as.numeric(egg_consumption$`Per Capita Consumption (lbs. per person)`)
+egg_consumption$product <- "egg"
+
+new_data <- (rbind(egg_consumption, meat_consumption))
+animal_products <- (rbind(new_data, dairy_consumption))
 
 
-#Creating an empty Data Frame to will fill with Dairy, Egg, and Meat data 
-animal_products <- data.frame(Year=integer(22), Meat_supply= integer(22), Dairy_supply=integer(22), Egg_supply= integer(22))
-animal_products$Year <- Years
-animal_products$Meat_supply <- meat_consumption$`Per Capita Disappearance (lbs)`
-animal_products$Dairy_supply <- dairy_consumption$`Per Capita All Dairy and Dairy Product Consumption (lbs. per person)`
-animal_products$Egg_supply <- egg_consumption$`Per Capita Egg Consumption (lbs. per person)`
 
 #-------------------------------------Bring in and health data --------------------------------------------------------
 
@@ -103,3 +108,9 @@ healthy_data$Obesity_rate <- h_data$X11
 healthy_data$Diabetes_rate <- as.numeric(healthy_data$Diabetes_rate)
 healthy_data$Hypertension_rate <- as.numeric(healthy_data$Hypertension_rate)
 healthy_data$Obesity_rate <- as.numeric(healthy_data$Obesity_rate)
+
+
+save(animal_products, file = "./Animal_product_consumption.RData")
+save(healthy_data, file = "./health_data.RData")
+
+view(animal_products)
